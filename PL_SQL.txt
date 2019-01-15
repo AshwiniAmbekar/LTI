@@ -1,0 +1,114 @@
+   Taking input from the user:
+
+    declare
+    vename varchar2(20);
+    vsal employees.salary %type;
+    begin
+    vename:='&name2';
+    select salary into vsal from employees where first_name=vename;
+    dbms_output.put_line(vsal);
+    end;
+--------------------------------------------------------------
+    create or replace procedure proc4(pename varchar2)
+    as
+    vsal employees.salary%type;
+    begin
+    select salary into vsal from employees where first_name=pename;
+    if (vsal>5000) then
+    dbms_output.put_line('good sal');
+    end if;
+    end;
+----------------------------------------------------------------
+create or replace procedure proc4(pename varchar2 , pincr in number)
+as
+vsal employees.salary%type;
+begin
+select salary into vsal from employees where first_name=pename;
+if (vsal>8000) then
+update employees
+set salary=vsal + pincr where first_name=pename;
+dbms_output.put_line('old salary: ' || vsal);
+select salary into vsal from employees where first_name=pename;
+dbms_output.put_line('new salary: ' || vsal);
+end if;
+end;
+--------------------------------------------------------------
+create or replace function ep1(totno number) return number
+as
+tot number(4);
+vresult number(30);
+begin
+vresult:=cube_fun(4);
+dbms_output.put_line('result is : '||vresult);
+select count(employee_id) into tot from employees where department_id=totno;
+return tot;
+end;
+--------------------------------------------------------------
+declare
+a number(10);
+b number(10);
+begin
+a:=0;
+b:=a/0;
+exception
+when zero_divide then
+verr:=substr(sqlerrm,1,30);
+dbms_output.put_line('No number can be divided by zero ');
+end;
+-------------------------------------------------------------
+declare
+vsal number(10,2);
+highsal exception;
+begin
+select salary into vsal from employees where first_name='Valli';
+if vsal>10000 then
+raise highsal;
+end if;
+exception
+when highsal then
+dbms_output.put_line('the salary is high');
+end;
+--------------------------------------------------------------
+Trigger-
+create or replace trigger trig
+before insert on emp
+begin
+dbms_output.put_line('this is trigger');
+end;
+
+create or replace trigger trig
+before delete on emp
+begin
+raise_application_error(-20201,'Records can't be deleted!!');
+end;
+
+create or replace trigger up_tr
+  2  before update or insert or delete on emp
+  3  begin
+  4  if updating then
+  5  insert into log_table values(
+  6  user,sysdate,'U','EMP');
+  7  end if;
+  8  if deleting then
+  9  insert into log_table values(
+ 10  user,sysdate,'D','EMP');
+ 11  end if;
+ 12  if inserting then
+ 13  insert into log_table values(
+ 14  user,sysdate,'I','EMP');
+ 15  end if;
+  end;
+---------------------------------------------------------
+Cursor-
+ declare
+  2  cursor c1 is select * from employees;
+  3  vrec employees %rowtype;
+  4  begin
+  5  open c1;
+  6  loop
+  7  fetch c1 into vrec;
+  8  exit when c1%notfound;
+  9  dbms_output.put_line(vrec.first_name || 'earning' || vrec.salary);
+ 10  end loop;
+ 11  close c1;
+ 12 end;
